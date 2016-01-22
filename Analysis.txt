@@ -1,0 +1,75 @@
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.IO;
+
+namespace Text2Image
+{
+    public partial class FrmSteganography : Form
+    {
+        public FrmSteganography()
+        {
+            InitializeComponent();
+        }
+
+        //public values:
+        string loadedTrueImagePath, loadedFilePath, saveToImage,DLoadImagePath,DSaveFilePath;
+        int height, width;
+        long fileSize, fileNameSize;
+        Image loadedTrueImage, DecryptedImage ,AfterEncryption;
+        Bitmap loadedTrueBitmap, DecryptedBitmap;
+        Rectangle previewImage = new Rectangle(20,160,490,470);
+        bool canPaint = false, EncriptionDone = false;
+        byte[] fileContainer;
+
+        private void EnImageBrowse_btn_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                loadedTrueImagePath = openFileDialog1.FileName;
+                EnImage_tbx.Text = loadedTrueImagePath;
+                loadedTrueImage = Image.FromFile(loadedTrueImagePath);
+                height = loadedTrueImage.Height;
+                width = loadedTrueImage.Width;
+                loadedTrueBitmap = new Bitmap(loadedTrueImage);
+
+                FileInfo imginf = new FileInfo(loadedTrueImagePath);
+                float fs = (float)imginf.Length / 1024;
+                ImageSize_lbl.Text = smalldecimal(fs.ToString(), 2) + " KB";
+                ImageHeight_lbl.Text = loadedTrueImage.Height.ToString() + " Pixel";
+                ImageWidth_lbl.Text = loadedTrueImage.Width.ToString() + " Pixel";
+                double cansave = (8.0 * ((height * (width / 3) * 3) / 3 - 1)) / 1024;
+                CanSave_lbl.Text = smalldecimal(cansave.ToString(), 2) + " KB";
+
+                canPaint = true;
+                this.Invalidate();
+            }
+        }
+
+        private string smalldecimal(string inp, int dec)
+        {
+            int i;
+            for (i = inp.Length - 1; i > 0; i--)
+                if (inp[i] == '.')
+                    break;
+            try
+            {
+                return inp.Substring(0, i + dec + 1);
+            }
+            catch
+            {
+                return inp;
+            }
+        }
+
+        private void EnFileBrowse_btn_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog2.ShowDialog() == DialogResult.OK)
+            {
+                loadedFilePath = openFileDialog2.FileName;
+                EnFile_tbx.Text = loadedFilePath;
+                FileInfo finfo = new FileInfo(loadedFilePath);
+                fileSize = finfo.Length;
+                fileNameSize = justFName(loadedFilePath).Length;
+            }
+        }
